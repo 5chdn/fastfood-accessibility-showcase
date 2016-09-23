@@ -41,7 +41,7 @@ let TILE_SHA1_ID;
 function accessibility_map() {
   'use strict';
 
-  textureImage.src = "img/timemaps-gradient.png";
+  textureImage.src = "img/color-brewer.png";
 
   r360.config.requestTimeout = 120000;
 
