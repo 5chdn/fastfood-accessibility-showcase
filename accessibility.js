@@ -57,14 +57,19 @@ function accessibility_map() {
 
   /* set viewport to berlin */
   m.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
-  let whiteIcon = L.icon({
-    iconUrl   : 'img/map-marker-point-64.png',
+  let whiteIconPen = L.icon({
+    iconUrl   : 'img/map-marker-pen-64.png',
+    iconSize  : [32, 32],
+    iconAnchor: [16, 32]
+  });
+  let whiteIconUni = L.icon({
+    iconUrl   : 'img/map-marker-student-64.png',
     iconSize  : [32, 32],
     iconAnchor: [16, 32]
   });
 
-  hpiMarker = L.marker([52.393697, 13.133237], {draggable: false, icon: whiteIcon}).addTo(m);
-  htwMarker = L.marker([52.457053, 13.526634], {draggable: false, icon: whiteIcon}).addTo(m);
+  hpiMarker = L.marker([52.393697, 13.133237], {draggable: false, icon: whiteIconUni}).addTo(m);
+  htwMarker = L.marker([52.457053, 13.526634], {draggable: false, icon: whiteIconPen}).addTo(m);
 
   TILE_SHA1_ID = sha1id();
 
