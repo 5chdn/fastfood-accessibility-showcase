@@ -10,20 +10,25 @@ let c;
 let gl;
 let sp;
 
-/* center berlin, default zoom */
-const DEFAULT_CENTER = [52.516, 13.377];
+/* center lehde, default zoom */
+const DEFAULT_CENTER = [51.865752, 13.991174];
 const DEFAULT_ZOOM = 10;
 
 /* cache for all tile's vertex, index and color buffers */
 let TILE_CACHE;
 let TILE_GUID = guid();
 
-/* default travel time is 30 minutes */
-let TRAVEL_TIME = 1800;
-let TRAVEL_TYPE = 'car';
-let INTERSECTION_MODE = 'union';
+/* default travel time is 120 minutes */
+let TRAVEL_TIME = 7200;
+let TRAVEL_TYPE = 'bike';
+let INTERSECTION_MODE = 'average';
 
-let RESTAURANT_MARKER = new Array(32);
+let luebbenCastleMarker;
+let lehdeLeisureMarker;
+let luebbenauCastleMarker;
+let vetschauParkMarker;
+let burgLakeMarker;
+let radduschFortressMarker;
 
 /* binary geometry tiles */
 let gltfTiles;
@@ -40,7 +45,7 @@ let textureImage = new Image();
 function accessibility_map() {
   'use strict';
 
-  textureImage.src = "img/heat_gradient_discrete_3.png";
+  textureImage.src = "img/heat_gradient_2.png";
 
   r360.config.requestTimeout = 120000;
 
@@ -62,38 +67,12 @@ function accessibility_map() {
     iconAnchor: [16, 32]
   });
 
-  RESTAURANT_MARKER[0] = L.marker([52.2894769, 12.4649865], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[1] = L.marker([52.5226551, 13.41272], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[2] = L.marker([52.487449, 13.47731780000001], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[3] = L.marker([52.514597, 13.4634076], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[4] = L.marker([52.505448199999982, 13.607002299999989], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[5] = L.marker([52.514659799999983, 13.419344], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[6] = L.marker([52.4803876, 13.3851493], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[7] = L.marker([52.537536099999983, 13.2034674], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[8] = L.marker([52.4339621, 13.1911015], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[9] = L.marker([52.529464, 13.458037], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[10] = L.marker([53.0661726, 14.2719444], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[11] = L.marker([52.388610299999982, 13.5187991], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[12] = L.marker([52.4844684, 13.385286199999987], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[13] = L.marker([52.408851699999978, 13.3702572], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[14] = L.marker([51.7580245, 14.3336024], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[15] = L.marker([52.5460373, 13.3593033], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[16] = L.marker([52.5210518, 13.411638299999987], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[17] = L.marker([52.315115599999977, 13.6054673], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[18] = L.marker([52.568382599999978, 13.4283627], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[19] = L.marker([52.4794304, 13.4369245], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[20] = L.marker([52.1517173, 14.6337369], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[21] = L.marker([52.4299496, 13.4556299], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[22] = L.marker([52.3368776, 14.5475519], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[23] = L.marker([52.524672299999978, 13.369071], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[24] = L.marker([52.5346344, 13.4962633], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[25] = L.marker([52.4388779, 13.3887886], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[26] = L.marker([52.4432604, 13.4345885], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[27] = L.marker([52.5491834, 13.4140668], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[28] = L.marker([52.3703862, 13.5270134], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[29] = L.marker([52.5544264, 13.2916922], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[30] = L.marker([52.476701599999984, 13.364473899999989], {draggable: false, icon: whiteIcon}).addTo(m);
-  RESTAURANT_MARKER[31] = L.marker([52.5004871, 13.363105], {draggable: false, icon: whiteIcon}).addTo(m);
+  luebbenCastleMarker = L.marker([51.938805, 13.899617], {draggable: false, icon: whiteIcon}).addTo(m);
+  lehdeLeisureMarker = L.marker([51.865752, 13.991174], {draggable: false, icon: whiteIcon}).addTo(m);
+  luebbenauCastleMarker = L.marker([51.869436, 13.979588], {draggable: false, icon: whiteIcon}).addTo(m);
+  vetschauParkMarker = L.marker([51.783029, 14.069861], {draggable: false, icon: whiteIcon}).addTo(m);
+  burgLakeMarker = L.marker([51.857085, 14.147086], {draggable: false, icon: whiteIcon}).addTo(m);
+  radduschFortressMarker = L.marker([51.804858, 14.030440], {draggable: false, icon: whiteIcon}).addTo(m);
 
   /* setup leaflet canvas webgl overlay */
   o = L.canvasOverlay().drawing(drawGL(true)).addTo(m);
@@ -175,13 +154,13 @@ function accessibility_map() {
         label: '<i class="fa fa-bicycle"></i> Cycling',
         key: 'bike',
         tooltip: 'Cycling speed is on average 15km/h',
-        checked: false
+        checked: true
       },
       {
         label: '<i class="fa fa-car"></i> Car',
         key: 'car',
         tooltip: 'Car speed is limited by speed limit',
-        checked: true
+        checked: false
       },
       {
         label: '<i class="fa fa-bus"></i> Transit',
@@ -207,7 +186,7 @@ function accessibility_map() {
         label: '&cup; Union',
         key: 'union',
         tooltip: 'No intersection of polygons',
-        checked: true
+        checked: false
       },
 
       {
@@ -221,7 +200,7 @@ function accessibility_map() {
         label: '&#8960; Average',
         key: 'average',
         tooltip: 'Average travel time in polygons',
-        checked: false
+        checked: true
       },
     ]
   });
@@ -301,7 +280,7 @@ function accessibility_map() {
 function initGL(canvas) {
   'use strict';
 
-  gl = canvas.getContext('experimental-webgl', { antialias: true });
+  gl = canvas.getContext('experimental-webgl', { antialias: false });
 }
 
 /**
@@ -399,6 +378,8 @@ function getGltfTiles(tile, zoom, canvas) {
   /* request tile from tiling server */
   requestTile(tile.x, tile.y, zoom, function(response){
 
+    window.console.log(response.data.tile.gltf.buffers);
+
     if (response.data.tile.gltf.buffers.vertices.length > 0 &&
       response.data.tile.gltf.buffers.indices.length > 0 &&
       response.id.localeCompare(TILE_GUID) == 0) {
@@ -442,43 +423,15 @@ function requestTile(x, y, z, callback) {
   'use strict';
 
   let travelOptions = r360.travelOptions();
-
-  travelOptions.addSource(RESTAURANT_MARKER[0]);
-  travelOptions.addSource(RESTAURANT_MARKER[1]);
-  travelOptions.addSource(RESTAURANT_MARKER[2]);
-  travelOptions.addSource(RESTAURANT_MARKER[3]);
-  travelOptions.addSource(RESTAURANT_MARKER[4]);
-  travelOptions.addSource(RESTAURANT_MARKER[5]);
-  travelOptions.addSource(RESTAURANT_MARKER[6]);
-  travelOptions.addSource(RESTAURANT_MARKER[7]);
-  travelOptions.addSource(RESTAURANT_MARKER[8]);
-  travelOptions.addSource(RESTAURANT_MARKER[9]);
-  travelOptions.addSource(RESTAURANT_MARKER[10]);
-  travelOptions.addSource(RESTAURANT_MARKER[11]);
-  travelOptions.addSource(RESTAURANT_MARKER[12]);
-  travelOptions.addSource(RESTAURANT_MARKER[13]);
-  travelOptions.addSource(RESTAURANT_MARKER[14]);
-  travelOptions.addSource(RESTAURANT_MARKER[15]);
-  travelOptions.addSource(RESTAURANT_MARKER[16]);
-  travelOptions.addSource(RESTAURANT_MARKER[17]);
-  travelOptions.addSource(RESTAURANT_MARKER[18]);
-  travelOptions.addSource(RESTAURANT_MARKER[19]);
-  travelOptions.addSource(RESTAURANT_MARKER[20]);
-  travelOptions.addSource(RESTAURANT_MARKER[21]);
-  travelOptions.addSource(RESTAURANT_MARKER[22]);
-  travelOptions.addSource(RESTAURANT_MARKER[23]);
-  travelOptions.addSource(RESTAURANT_MARKER[24]);
-  travelOptions.addSource(RESTAURANT_MARKER[25]);
-  travelOptions.addSource(RESTAURANT_MARKER[26]);
-  travelOptions.addSource(RESTAURANT_MARKER[27]);
-  travelOptions.addSource(RESTAURANT_MARKER[28]);
-  travelOptions.addSource(RESTAURANT_MARKER[29]);
-  travelOptions.addSource(RESTAURANT_MARKER[30]);
-  travelOptions.addSource(RESTAURANT_MARKER[31]);
-
+  travelOptions.addSource(luebbenCastleMarker);
+  travelOptions.addSource(lehdeLeisureMarker);
+  travelOptions.addSource(luebbenauCastleMarker);
+  travelOptions.addSource(vetschauParkMarker);
+  travelOptions.addSource(burgLakeMarker);
+  travelOptions.addSource(radduschFortressMarker);
   travelOptions.setServiceKey('uhWrWpUhyZQy8rPfiC7X');
   travelOptions.setServiceUrl('https://dev.route360.net/mobie/');
-  travelOptions.setMaxRoutingTime(9999);
+  travelOptions.setMaxRoutingTime(7200);
   travelOptions.setTravelType(TRAVEL_TYPE);
   travelOptions.setIntersectionMode(INTERSECTION_MODE);
   travelOptions.setDate(20160824);
@@ -504,8 +457,8 @@ function drawGL() {
   if (gl) {
 
     /* enable blending */
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.disable(gl.BLEND);
+    //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     /* disable depth testing */
     gl.disable(gl.DEPTH_TEST);
@@ -543,8 +496,10 @@ function drawGL() {
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
@@ -576,7 +531,7 @@ function drawGL() {
     gl.uniformMatrix4fv(sp.uniformMatrix, false, uMatrix);
 
     /* adjust line width based on zoom */
-    gl.lineWidth(width);
+    gl.lineWidth(10);
 
     /* loop all tile buffers in cache and draw each geometry */
     let tileBuffers = TILE_CACHE.getTileBufferCollection();
