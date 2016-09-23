@@ -14,10 +14,6 @@ let sp;
 const DEFAULT_CENTER = [51.865752, 13.991174];
 const DEFAULT_ZOOM = 10;
 
-/* cache for all tile's vertex, index and color buffers */
-let TILE_CACHE;
-let TILE_GUID = guid();
-
 /* default travel time is 120 minutes */
 let TRAVEL_TIME = 7200;
 let TRAVEL_TYPE = 'bike';
@@ -39,13 +35,17 @@ let travelTypeButtons;
 let intersectionModeButtons;
 let textureImage = new Image();
 
+/* cache for all tile's vertex, index and color buffers */
+let TILE_CACHE;
+let TILE_SHA1_ID;
+
 /**
  * initialize the distance map visualization
  */
 function accessibility_map() {
   'use strict';
 
-  textureImage.src = "img/heat_gradient_2.png";
+  textureImage.src = "img/heat_gradient_discrete_3.png";
 
   r360.config.requestTimeout = 120000;
 
@@ -73,6 +73,8 @@ function accessibility_map() {
   vetschauParkMarker = L.marker([51.783029, 14.069861], {draggable: false, icon: whiteIcon}).addTo(m);
   burgLakeMarker = L.marker([51.857085, 14.147086], {draggable: false, icon: whiteIcon}).addTo(m);
   radduschFortressMarker = L.marker([51.804858, 14.030440], {draggable: false, icon: whiteIcon}).addTo(m);
+
+  TILE_SHA1_ID = sha1id();
 
   /* setup leaflet canvas webgl overlay */
   o = L.canvasOverlay().drawing(drawGL(true)).addTo(m);
@@ -170,10 +172,10 @@ function accessibility_map() {
       }
     ]
   });
-  travelTypeButtons.addTo(m);
+  //travelTypeButtons.addTo(m);
   travelTypeButtons.onChange(function(value){
     TRAVEL_TYPE = travelTypeButtons.getValue();
-    TILE_GUID = guid();
+    TILE_SHA1_ID = sha1id();
     TILE_CACHE.resetHard();
     gltfTiles.redraw();
     drawGL();
@@ -204,10 +206,10 @@ function accessibility_map() {
       },
     ]
   });
-  intersectionModeButtons.addTo(m);
+  //intersectionModeButtons.addTo(m);
   intersectionModeButtons.onChange(function(value){
     INTERSECTION_MODE = intersectionModeButtons.getValue();
-    TILE_GUID = guid();
+    TILE_SHA1_ID = sha1id();
     TILE_CACHE.resetHard();
     gltfTiles.redraw();
     drawGL();
@@ -220,14 +222,12 @@ function accessibility_map() {
   });
 
   /* update overlay on slider events */
-  travelTimeControl.onSlideMove(function(){
-    let recentTime = TRAVEL_TIME;
-    TRAVEL_TIME = travelTimeControl.getMaxValue();
+  travelTimeControl.onSlideMove(function(values){
+    TRAVEL_TIME = values[values.length - 1].time;
     drawGL();
   });
-  travelTimeControl.onSlideStop(function(){
-    let recentTime = TRAVEL_TIME;
-    TRAVEL_TIME = travelTimeControl.getMaxValue();
+  travelTimeControl.onSlideStop(function(values){
+    TRAVEL_TIME = values[values.length - 1].time;
     drawGL();
   });
   travelTimeControl.addTo(m);
@@ -270,8 +270,8 @@ function accessibility_map() {
     drawGL();
   });
 
-  let zoomControl = L.control.zoom({ position: 'topright' });
-  zoomControl.addTo(m);
+  let zoomControl = L.control.zoom({ position: 'bottomright' });
+  //zoomControl.addTo(m);
 }
 
 /**
@@ -280,7 +280,7 @@ function accessibility_map() {
 function initGL(canvas) {
   'use strict';
 
-  gl = canvas.getContext('experimental-webgl', { antialias: false });
+  gl = canvas.getContext('experimental-webgl', { antialias: true });
 }
 
 /**
@@ -378,11 +378,9 @@ function getGltfTiles(tile, zoom, canvas) {
   /* request tile from tiling server */
   requestTile(tile.x, tile.y, zoom, function(response){
 
-    window.console.log(response.data.tile.gltf.buffers);
-
     if (response.data.tile.gltf.buffers.vertices.length > 0 &&
       response.data.tile.gltf.buffers.indices.length > 0 &&
-      response.id.localeCompare(TILE_GUID) == 0) {
+      response.id.localeCompare(TILE_SHA1_ID) == 0) {
 
       /* create a tile buffer object for the current tile */
       let tileBuffer = L.tileBuffer(
@@ -444,7 +442,7 @@ function requestTile(x, y, z, callback) {
     [1, 11, 12, 13, 14, 15, 16, 21, 22, 31, 32,
       41, 42, 51, 63, 62, 71, 72, 81, 91, 92, 99]
   );
-  r360.MobieService.getGraph(TILE_GUID, travelOptions, callback);
+  r360.MobieService.getGraph(TILE_SHA1_ID, travelOptions, callback);
 }
 
 /**
@@ -457,8 +455,8 @@ function drawGL() {
   if (gl) {
 
     /* enable blending */
-    gl.disable(gl.BLEND);
-    //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     /* disable depth testing */
     gl.disable(gl.DEPTH_TEST);
@@ -653,15 +651,10 @@ function latLonToPixels(lat, lon) {
   return L.point(pixelX, pixelY);
 }
 
-function guid() {
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
-}
-
-function s4() {
-  return Math.floor((1 + Math.random()) * 0x10000)
-    .toString(16)
-    .substring(1);
+function sha1id() {
+  let hashMe = TRAVEL_TYPE + ";"
+    + INTERSECTION_MODE + ";";
+  return Sha1.hash(hashMe);
 }
 
 /**
