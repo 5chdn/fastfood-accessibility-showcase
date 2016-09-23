@@ -702,9 +702,7 @@ function latLonToPixels(lat, lon) {
 }
 
 function sha1id() {
-  let hashMe = startMarker.getLatLng() + ";"
-    + auxiliaryMarker.getLatLng() + ";"
-    + TRAVEL_TYPE + ";"
+  let hashMe = TRAVEL_TYPE + ";"
     + INTERSECTION_MODE + ";";
   return Sha1.hash(hashMe);
 }
