@@ -62,7 +62,7 @@ function accessibility_map() {
   /* set viewport to berlin */
   m.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
   let whiteIcon = L.icon({
-    iconUrl   : 'img/map-marker-point-64.png',
+    iconUrl   : 'img/map-marker-sight-64.png',
     iconSize  : [32, 32],
     iconAnchor: [16, 32]
   });
