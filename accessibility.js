@@ -14,8 +14,8 @@ let sp;
 const DEFAULT_CENTER = [52.516, 13.377];
 const DEFAULT_ZOOM = 10;
 
-/* default travel time is 30 minutes */
-let TRAVEL_TIME = 1800;
+/* default travel time is 15 minutes */
+let TRAVEL_TIME = 900;
 let TRAVEL_TYPE = 'car';
 let INTERSECTION_MODE = 'union';
 
@@ -40,7 +40,7 @@ let TILE_SHA1_ID;
 function accessibility_map() {
   'use strict';
 
-  textureImage.src = "img/heat_gradient_discrete_3.png";
+  textureImage.src = "img/timemaps-gradient.png";
 
   r360.config.requestTimeout = 120000;
 
@@ -57,7 +57,7 @@ function accessibility_map() {
   /* set viewport to berlin */
   m.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
   let whiteIcon = L.icon({
-    iconUrl   : 'img/map-marker-point-64.png',
+    iconUrl   : 'img/map-marker-burger-64.png',
     iconSize  : [32, 32],
     iconAnchor: [16, 32]
   });
@@ -193,7 +193,7 @@ function accessibility_map() {
       }
     ]
   });
-  travelTypeButtons.addTo(m);
+  //travelTypeButtons.addTo(m);
   travelTypeButtons.onChange(function(value){
     TRAVEL_TYPE = travelTypeButtons.getValue();
     TILE_SHA1_ID = sha1id();
@@ -227,7 +227,7 @@ function accessibility_map() {
       },
     ]
   });
-  intersectionModeButtons.addTo(m);
+  //intersectionModeButtons.addTo(m);
   intersectionModeButtons.onChange(function(value){
     INTERSECTION_MODE = intersectionModeButtons.getValue();
     TILE_SHA1_ID = sha1id();
@@ -292,8 +292,8 @@ function accessibility_map() {
     drawGL();
   });
 
-  let zoomControl = L.control.zoom({ position: 'topright' });
-  zoomControl.addTo(m);
+  let zoomControl = L.control.zoom({ position: 'bottomright' });
+  //zoomControl.addTo(m);
 }
 
 /**
