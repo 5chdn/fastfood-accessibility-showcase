@@ -422,7 +422,7 @@ function requestTile(x, y, z, callback) {
   travelOptions.addSource(hpiMarker);
   travelOptions.addSource(htwMarker);
 
-  travelOptions.setServiceKey('uhWrWpUhyZQy8rPfiC7X');
+  travelOptions.setServiceKey('ZTOCBA4MNLQLQQPXHQDW');
   travelOptions.setServiceUrl('https://dev.route360.net/mobie/');
   travelOptions.setMaxRoutingTime(9999);
   travelOptions.setTravelType(TRAVEL_TYPE);
