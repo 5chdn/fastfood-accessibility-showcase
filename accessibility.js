@@ -15,8 +15,8 @@ const DEFAULT_CENTER = [52.516, 13.377];
 const DEFAULT_ZOOM = 11;
 
 /* default travel time is 60 minutes */
-let TRAVEL_TIME = 3600;
-let TRAVEL_TYPE = 'transit';
+let TRAVEL_TIME = 7200;
+let TRAVEL_TYPE = 'bike';
 let INTERSECTION_MODE = 'intersection';
 
 /* binary geometry tiles */
@@ -41,7 +41,7 @@ let TILE_SHA1_ID;
 function accessibility_map() {
   'use strict';
 
-  textureImage.src = "img/color-brewer.png";
+  textureImage.src = "img/squ-brown.png";
 
   r360.config.requestTimeout = 120000;
 
@@ -203,7 +203,7 @@ function accessibility_map() {
       },
     ]
   });
-  //intersectionModeButtons.addTo(m);
+  intersectionModeButtons.addTo(m);
   intersectionModeButtons.onChange(function(value){
     INTERSECTION_MODE = intersectionModeButtons.getValue();
     TILE_SHA1_ID = sha1id();
@@ -227,7 +227,7 @@ function accessibility_map() {
     TRAVEL_TIME = values[values.length - 1].time;
     drawGL();
   });
-  travelTimeControl.addTo(m);
+  //travelTimeControl.addTo(m);
   travelTimeControl.setPosition('topright');
 
   /* init cache for tile buffers for current zoom level */
